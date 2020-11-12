@@ -23,9 +23,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _volumeWatcher = VolumeWatcher(
-      onVolumeChangeListener: (volume) {},
-    );
     initPlatformState();
   }
 
@@ -73,13 +70,13 @@ class _MyAppState extends State<MyApp> {
           child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                VolumeWatcher(
-                  onVolumeChangeListener: (double volume) {
-                    setState(() {
-                      currentVolume = volume;
-                    });
-                  },
-                ),
+                // VolumeWatcher(
+                //   onVolumeChangeListener: (double volume) {
+                //     setState(() {
+                //       currentVolume = volume;
+                //     });
+                //   },
+                // ),
                 Text("系统版本=$_platformVersion"),
                 Text("最大音量=$maxVolume"),
                 Text("初始音量=$initVolume"),
