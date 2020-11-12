@@ -17,15 +17,15 @@ class VolumeWatcher extends StatefulWidget {
     assert(this.onVolumeChangeListener != null);
   }
 
-  static const MethodChannel methodChannel = const MethodChannel('volume_watcher_method');
-  static const EventChannel eventChannel = const EventChannel('volume_watcher_event');
-  static StreamSubscription _subscription;
-  static Map<int, Function> _events = {};
+   static const MethodChannel methodChannel = const MethodChannel('volume_watcher_method');
+   static const EventChannel eventChannel = const EventChannel('volume_watcher_event');
+   static StreamSubscription _subscription;
+   static Map<int, Function> _events = {};
 
   /*
    * event channel回调
    */
-  static void _onEvent(Object event) {
+  void _onEvent(Object event) {
     _events.values.forEach((item) {
       if (item != null) {
         item(event);
@@ -36,13 +36,13 @@ class VolumeWatcher extends StatefulWidget {
   /*
    * event channel回调失败
    */
-  static void _onError(Object error) {
+  void _onError(Object error) {
     print('Volume status: unknown.' + error.toString());
   }
 
   /// 添加监听器
   /// 返回id, 用于删除监听器使用
-  static int addListener(Function onEvent) {
+  int addListener(Function onEvent) {
     if (_subscription == null) {
       //event channel 注册
       _subscription = eventChannel.receiveBroadcastStream('init').listen(_onEvent, onError: _onError);
@@ -59,7 +59,7 @@ class VolumeWatcher extends StatefulWidget {
   }
 
   /// 删除监听器
-  static void removeListener(int id) {
+  void removeListener(int id) {
     if (id != null) {
       _events.remove(id);
     }
@@ -70,7 +70,7 @@ class VolumeWatcher extends StatefulWidget {
     return VolumeState();
   }
 
-  static Future<String> get platformVersion async {
+   static Future<String> get platformVersion async {
     final String version = await methodChannel.invokeMethod('getPlatformVersion');
     return version;
   }
@@ -78,7 +78,7 @@ class VolumeWatcher extends StatefulWidget {
   /*
    * 获取当前系统最大音量
    */
-  static Future<double> get getMaxVolume async {
+  Future<double> get getMaxVolume async {
     final double maxVolume = await methodChannel.invokeMethod('getMaxVolume', {});
     return maxVolume;
   }
@@ -86,7 +86,7 @@ class VolumeWatcher extends StatefulWidget {
   /*
    * 获取当前系统音量
    */
-  static Future<double> get getCurrentVolume async {
+  Future<double> get getCurrentVolume async {
     final double currentVolume = await methodChannel.invokeMethod('getCurrentVolume', {});
     return currentVolume;
   }
@@ -94,14 +94,14 @@ class VolumeWatcher extends StatefulWidget {
   /*
    * 设置系统音量
    */
-  static Future<bool> setVolume(double volume) async {
+  Future<bool> setVolume(double volume) async {
     final bool success = await methodChannel.invokeMethod('setVolume', {'volume': volume});
     return success;
   }
 
   /// 隐藏音量面板
   /// 仅ios有效
-  static set hideVolumeView(bool value) {
+  set hideVolumeView(bool value) {
     if (!Platform.isIOS) return;
     if (value == true) {
       methodChannel.invokeMethod('hideUI');
@@ -109,20 +109,23 @@ class VolumeWatcher extends StatefulWidget {
       methodChannel.invokeMethod('showUI');
     }
   }
+
 }
 
 class VolumeState extends State<VolumeWatcher> {
   int _listenerId;
+  VolumeWatcher _volumeWatcher;
 
   @override
   void initState() {
     super.initState();
-    _listenerId = VolumeWatcher.addListener(widget.onVolumeChangeListener);
+    _volumeWatcher = VolumeWatcher(onVolumeChangeListener: (double volume) {});
+    _listenerId = _volumeWatcher.addListener(widget.onVolumeChangeListener);
   }
 
   @override
   void dispose() {
-    VolumeWatcher.removeListener(_listenerId);
+    _volumeWatcher.removeListener(_listenerId);
     super.dispose();
   }
 
